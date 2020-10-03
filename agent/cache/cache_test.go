@@ -10,11 +10,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/consul/sdk/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/time/rate"
+
+	"github.com/hashicorp/consul/sdk/testutil"
 )
 
 // Test a basic Get with no indexes (and therefore no blocking queries).
@@ -841,15 +842,6 @@ func TestCacheGet_expireResetGet(t *testing.T) {
 	typ.AssertExpectations(t)
 }
 
-type testCloser struct {
-	closed bool
-}
-
-func (t *testCloser) Close() error {
-	t.closed = true
-	return nil
-}
-
 // Test that entries with state that satisfies io.Closer get cleaned up
 func TestCacheGet_expireClose(t *testing.T) {
 	t.Parallel()
@@ -884,6 +876,15 @@ func TestCacheGet_expireClose(t *testing.T) {
 
 	// state.Close() should have been called
 	require.True(state.closed)
+}
+
+type testCloser struct {
+	closed bool
+}
+
+func (t *testCloser) Close() error {
+	t.closed = true
+	return nil
 }
 
 // Test a Get with a request that returns the same cache key across
